@@ -99,10 +99,16 @@ class Swan(QDialog):
         tab6.setLayout(tab6_hbox)
 
         self.outputSet()
-        tab7_vbox = QVBoxLayout()
-        tab7_vbox.addWidget(self.tab7_groupbox1)
-        tab7_vbox.addWidget(self.tab7_groupbox2)
-        tab7.setLayout(tab7_vbox)
+        tab7_hbox = QHBoxLayout()
+        tab7_hbox.addWidget(self.tab7_listwidget)
+        tab7_hbox.addWidget(self.tab7_stack)
+        tab7.setLayout(tab7_hbox)
+        self.connect(self.tab7_listwidget, SIGNAL("currentRowChanged(int)"), self.tab7_stack,
+                     SLOT("setCurrentIndex(int)"))
+        # tab7_vbox = QVBoxLayout()
+        # tab7_vbox.addWidget(self.tab7_groupbox1)
+        # tab7_vbox.addWidget(self.tab7_groupbox2)
+        # tab7.setLayout(tab7_vbox)
 
         self.calculate_input_file()
         tab8_vbox = QVBoxLayout()
@@ -466,42 +472,35 @@ class Swan(QDialog):
         tab5_label9 = QLabel("建筑物数目")
         self.tab5_label10 = QLabel()
         self.tab5_label10.setFrameStyle(QFrame.Panel | QFrame.Sunken)
-        self.num = 1
-        self.tab5_label10.setText(str(self.num))
+        self.obs_num = 0
+        self.tab5_label10.setText(str(self.obs_num))
         self.tab5_pushbutton1 = QPushButton("添加")
         self.connect(self.tab5_pushbutton1, SIGNAL("clicked()"), self.addObstacle)
+        self.tab5_pushbutton2 = QPushButton("删除")
+        self.connect(self.tab5_pushbutton2, SIGNAL("clicked()"), self.deleteObstacle)
+        if self.obs_num == 0:
+            self.tab5_pushbutton2.setDisabled(True)
+
+        self.obsParams = {}
+        first_obs = [QLabel("透浪:"),
+                     QLineEdit(),
+                     QLabel("反射:"),
+                     QLineEdit(),
+                     QLabel("X1:"),
+                     QLineEdit(),
+                     QLabel("Y1:"),
+                     QLineEdit(),
+                     QLabel("X2:"),
+                     QLineEdit(),
+                     QLabel("Y2:"),
+                     QLineEdit()]
+        self.obsParams[str(self.obs_num) + "obs"] = first_obs
 
         self.tab5_gridlayout3 = QGridLayout()
         self.tab5_gridlayout3.addWidget(tab5_label9, 0, 0)
         self.tab5_gridlayout3.addWidget(self.tab5_label10, 0, 1)
         self.tab5_gridlayout3.addWidget(self.tab5_pushbutton1, 0, 2)
-        # tab5_wavelabel = QLabel("透浪:")
-        # tab5_wavelinedit = QLineEdit()
-        # tab5_reflectlabel = QLabel("反射:")
-        # tab5_reflectlinedit = QLineEdit()
-        # tab5_x1label = QLabel("X1:")
-        # tab5_x1linedit = QLineEdit()
-        # tab5_y1label = QLabel("Y1:")
-        # tab5_y1linedit = QLineEdit()
-        # tab5_x2label = QLabel("X2:")
-        # tab5_x2linedit = QLineEdit()
-        # tab5_y2label = QLabel("Y2:")
-        # tab5_y2linedit = QLineEdit()
-        self.tab5_gridlayout3.addWidget(QLabel("透浪:"), 1, 0)
-        self.tab5_gridlayout3.addWidget(QLineEdit(), 1, 1)
-        self.tab5_gridlayout3.addWidget(QLabel("反射:"), 1, 2)
-        self.tab5_gridlayout3.addWidget(QLineEdit(), 1, 3)
-        self.tab5_gridlayout3.addWidget(QLabel("X1:"), 1, 4)
-        self.tab5_gridlayout3.addWidget(QLineEdit(), 1, 5)
-        self.tab5_gridlayout3.addWidget(QLabel("Y1:"), 1, 6)
-        self.tab5_gridlayout3.addWidget(QLineEdit(), 1, 7)
-        self.tab5_gridlayout3.addWidget(QLabel("X2:"), 1, 8)
-        self.tab5_gridlayout3.addWidget(QLineEdit(), 1, 9)
-        self.tab5_gridlayout3.addWidget(QLabel("Y2:"), 1, 10)
-        self.tab5_gridlayout3.addWidget(QLineEdit(), 1, 11)
-        # self.obstacle_terms = [tab5_wavelabel, tab5_wavelinedit, tab5_reflectlabel, tab5_reflectlinedit,
-        #                   tab5_x1label, tab5_x1linedit, tab5_y1label, tab5_y1linedit,
-        #                   tab5_x2label, tab5_x2linedit, tab5_y2label, tab5_y2linedit]
+        self.tab5_gridlayout3.addWidget(self.tab5_pushbutton2, 0, 3)
 
         tab5_groupbox2.setLayout(self.tab5_gridlayout3)
 
@@ -525,20 +524,34 @@ class Swan(QDialog):
         self.tab5_groupbox.setLayout(tab5_gridlayout1)
 
     def addObstacle(self):
-        self.num += 1
-        self.tab5_label10.setText(str(self.num))
-        self.tab5_gridlayout3.addWidget(QLabel("透浪:"))
-        self.tab5_gridlayout3.addWidget(QLineEdit())
-        self.tab5_gridlayout3.addWidget(QLabel("反射:"))
-        self.tab5_gridlayout3.addWidget(QLineEdit())
-        self.tab5_gridlayout3.addWidget(QLabel("X1:"))
-        self.tab5_gridlayout3.addWidget(QLineEdit())
-        self.tab5_gridlayout3.addWidget(QLabel("Y1:"))
-        self.tab5_gridlayout3.addWidget(QLineEdit())
-        self.tab5_gridlayout3.addWidget(QLabel("X2:"))
-        self.tab5_gridlayout3.addWidget(QLineEdit())
-        self.tab5_gridlayout3.addWidget(QLabel("Y2:"))
-        self.tab5_gridlayout3.addWidget(QLineEdit())
+        self.obs_num += 1
+        self.tab5_label10.setText(str(self.obs_num))
+        key_name = str(self.obs_num) + "obs"
+        self.obsParams[key_name] = [QLabel("透浪:"),
+                                    QLineEdit(),
+                                    QLabel("反射:"),
+                                    QLineEdit(),
+                                    QLabel("X1:"),
+                                    QLineEdit(),
+                                    QLabel("Y1:"),
+                                    QLineEdit(),
+                                    QLabel("X2:"),
+                                    QLineEdit(),
+                                    QLabel("Y2:"),
+                                    QLineEdit()]
+        for i, param_widget in enumerate(self.obsParams[key_name]):
+            self.tab5_gridlayout3.addWidget(param_widget, self.obs_num, i)
+        if self.obs_num > 0:
+            self.tab5_pushbutton2.setDisabled(False)
+
+    def deleteObstacle(self):
+        key_name = str(self.obs_num) + "obs"
+        for param_widget in self.obsParams[key_name]:
+            param_widget.deleteLater()
+        self.obs_num -= 1
+        self.tab5_label10.setText(str(self.obs_num))
+        if self.obs_num <= 0:
+            self.tab5_pushbutton2.setDisabled(True)
 
     def calculateSet(self):
         self.tab6_groupbox = QGroupBox()
@@ -615,92 +628,58 @@ class Swan(QDialog):
         self.tab6_groupbox.setLayout(tab6_gridlayout1)
 
     def outputSet(self):
-        self.tab7_groupbox1 = QGroupBox()
-        self.tab7_groupbox2 = QGroupBox()
+        self.tab7_listwidget = QListWidget()
+        self.tab7_listwidget.insertItem(0, u"输出点")
+        self.tab7_listwidget.insertItem(1, u"输出域")
+        self.tab7_listwidget.insertItem(2, u"输出变量")
+        self.tab7_listwidget.insertItem(3, u"嵌套输出")
+        self.tab7_stack = QStackedWidget()
 
         tab7_left_groupbox = QGroupBox("输出点")
         tab7_mid_groupbox = QGroupBox("输出域")
         tab7_right_groupbox = QGroupBox("输出变量")
 
-        tab7_checkbox1 = QCheckBox("读入点位文件")
-        tab7_pushbutton1 = QPushButton("打开")
-        tab7_checkbox2 = QCheckBox("输入点位坐标")
+        self.tab7_checkbox1 = QCheckBox("读入点位文件")
+        self.tab7_pushbutton1 = QPushButton("+")
+        self.tab7_pushbutton1.clicked.connect(self.addPointsFiles)
+        self.tab7_checkbox2 = QCheckBox("输入点位坐标")
+        self.tab7_pushbutton2 = QPushButton("+")
+        self.tab7_pushbutton2.clicked.connect(self.addPointsCoordinates)
 
-        tab7_label_x1 = QLabel("X1:")
-        tab7_linedit_x1 = QLineEdit()
-        tab7_label_y1 = QLabel("Y1:")
-        tab7_linedit_y1 = QLineEdit()
-        tab7_checkbox3 = QCheckBox()
-        tab7_hbox1 = QHBoxLayout()
-        tab7_hbox1.addWidget(tab7_label_x1)
-        tab7_hbox1.addWidget(tab7_linedit_x1)
-        tab7_hbox1.addWidget(tab7_label_y1)
-        tab7_hbox1.addWidget(tab7_linedit_y1)
-        tab7_checkbox3.setLayout(tab7_hbox1)
+        self.points_files_num = 1
+        self.points1 = {}
+        self.points1[str(self.points_files_num)] = [QLabel("点位名:"),
+                                                    QLineEdit(),
+                                                    QLabel("点位文件名:"),
+                                                    QLineEdit()]
+        self.tab7_grid1 = QGridLayout()
+        for i, widget in enumerate(self.points1[str(self.points_files_num)]):
+            self.tab7_grid1.addWidget(widget, self.points_files_num - 1, i)
+        tab7_groupbox1 = QGroupBox()
+        tab7_groupbox1.setLayout(self.tab7_grid1)
 
-        tab7_label_x2 = QLabel("X2:")
-        tab7_linedit_x2 = QLineEdit()
-        tab7_label_y2 = QLabel("Y2:")
-        tab7_linedit_y2 = QLineEdit()
-        tab7_checkbox4 = QCheckBox()
-        tab7_hbox2 = QHBoxLayout()
-        tab7_hbox2.addWidget(tab7_label_x2)
-        tab7_hbox2.addWidget(tab7_linedit_x2)
-        tab7_hbox2.addWidget(tab7_label_y2)
-        tab7_hbox2.addWidget(tab7_linedit_y2)
-        tab7_checkbox4.setLayout(tab7_hbox2)
+        self.points_coords_num = 1
+        self.points2 = {}
+        self.points2[str(self.points_coords_num)] = [QLabel("点位名:"),
+                                                     QLineEdit(),
+                                                     QLabel("X:"),
+                                                     QLineEdit(),
+                                                     QLabel("Y:"),
+                                                     QLineEdit()]
+        self.tab7_grid2 = QGridLayout()
+        for i, widget in enumerate(self.points2[str(self.points_coords_num)]):
+            self.tab7_grid2.addWidget(widget, self.points_coords_num - 1, i)
+        tab7_groupbox2 = QGroupBox()
+        tab7_groupbox2.setLayout(self.tab7_grid2)
 
-        tab7_label_x3 = QLabel("X3:")
-        tab7_linedit_x3 = QLineEdit()
-        tab7_label_y3 = QLabel("Y3:")
-        tab7_linedit_y3 = QLineEdit()
-        tab7_checkbox5 = QCheckBox()
-        tab7_hbox3 = QHBoxLayout()
-        tab7_hbox3.addWidget(tab7_label_x3)
-        tab7_hbox3.addWidget(tab7_linedit_x3)
-        tab7_hbox3.addWidget(tab7_label_y3)
-        tab7_hbox3.addWidget(tab7_linedit_y3)
-        tab7_checkbox5.setLayout(tab7_hbox3)
-
-        tab7_label_x4 = QLabel("X4:")
-        tab7_linedit_x4 = QLineEdit()
-        tab7_label_y4 = QLabel("Y4:")
-        tab7_linedit_y4 = QLineEdit()
-        tab7_checkbox6 = QCheckBox()
-        tab7_hbox4 = QHBoxLayout()
-        tab7_hbox4.addWidget(tab7_label_x4)
-        tab7_hbox4.addWidget(tab7_linedit_x4)
-        tab7_hbox4.addWidget(tab7_label_y4)
-        tab7_hbox4.addWidget(tab7_linedit_y4)
-        tab7_checkbox6.setLayout(tab7_hbox4)
-
-        tab7_label_x5 = QLabel("X5:")
-        tab7_linedit_x5 = QLineEdit()
-        tab7_label_y5 = QLabel("Y5:")
-        tab7_linedit_y5 = QLineEdit()
-        tab7_checkbox7 = QCheckBox()
-        tab7_hbox5 = QHBoxLayout()
-        tab7_hbox5.addWidget(tab7_label_x5)
-        tab7_hbox5.addWidget(tab7_linedit_x5)
-        tab7_hbox5.addWidget(tab7_label_y5)
-        tab7_hbox5.addWidget(tab7_linedit_y5)
-        tab7_checkbox7.setLayout(tab7_hbox5)
-
-        tab7_vbox1 = QVBoxLayout()
-        tab7_vbox1.addWidget(tab7_checkbox3)
-        tab7_vbox1.addWidget(tab7_checkbox4)
-        tab7_vbox1.addWidget(tab7_checkbox5)
-        tab7_vbox1.addWidget(tab7_checkbox6)
-        tab7_vbox1.addWidget(tab7_checkbox7)
-        tab7_left_groupbox1 = QGroupBox()
-        tab7_left_groupbox1.setLayout(tab7_vbox1)
-
-        tab7_grid1 = QGridLayout()
-        tab7_grid1.addWidget(tab7_checkbox1, 0, 0)
-        tab7_grid1.addWidget(tab7_pushbutton1, 0, 1)
-        tab7_grid1.addWidget(tab7_checkbox2, 1, 0)
-        tab7_grid1.addWidget(tab7_left_groupbox1, 2, 0)
-        tab7_left_groupbox.setLayout(tab7_grid1)
+        tab7_1_grid = QGridLayout()
+        tab7_1_grid.addWidget(self.tab7_checkbox1, 0, 0)
+        tab7_1_grid.addWidget(self.tab7_pushbutton1, 0, 1)
+        tab7_1_grid.addWidget(tab7_groupbox1, 1, 0, 1, 2)
+        tab7_1_grid.addWidget(self.tab7_checkbox2, 2, 0)
+        tab7_1_grid.addWidget(self.tab7_pushbutton2, 2, 1)
+        tab7_1_grid.addWidget(tab7_groupbox2, 3, 0, 1, 2)
+        tab7_left_groupbox.setLayout(tab7_1_grid)
 
         tab7_checkbox8 = QCheckBox("矩形域")
         tab7_label_m1 = QLabel("左下角坐标:")
@@ -757,12 +736,6 @@ class Swan(QDialog):
             tab7_grid3.addWidget(tab7_right_checkbox, i // 6, i % 6)
         tab7_right_groupbox.setLayout(tab7_grid3)
 
-        tab7_hbox = QHBoxLayout()
-        tab7_hbox.addWidget(tab7_left_groupbox)
-        tab7_hbox.addWidget(tab7_mid_groupbox)
-        tab7_hbox.addWidget(tab7_right_groupbox)
-        self.tab7_groupbox1.setLayout(tab7_hbox)
-
         tab7_bottom_checkbox = QCheckBox("嵌套输出")
         tab7_label_bx1 = QLabel("X1:")
         tab7_linedit_bx1 = QLineEdit()
@@ -793,31 +766,52 @@ class Swan(QDialog):
         tab7_bottom_groupbox1.setLayout(tab7_grid4)
 
         tab7_label_t1 = QLabel(u'起始时间:')
-        tab7_label_t2 = QLabel(u'终止时间:')
         tab7_label_dt = QLabel(u'时间步长:')
         tab7_linedit_bt = QLineEdit()
         tab7_combox_b1 = QComboBox()
         tab7_combox_b1.addItems(['MIN', 'SEC', 'HR'])
         self.tab7_datetime1 = QDateTimeEdit()
-        self.tab7_datetime2 = QDateTimeEdit()
         self.tab7_datetime1.setDateTime(QDateTime.currentDateTime())
-        self.tab7_datetime2.setDateTime(QDateTime.currentDateTime())
         tab7_grid5 = QGridLayout()
         tab7_grid5.addWidget(tab7_label_t1, 0, 0)
         tab7_grid5.addWidget(self.tab7_datetime1, 0, 1)
-        tab7_grid5.addWidget(tab7_label_t2, 1, 0)
-        tab7_grid5.addWidget(self.tab7_datetime2, 1, 1)
         tab7_grid5.addWidget(tab7_label_dt, 2, 0)
         tab7_grid5.addWidget(tab7_linedit_bt, 2, 1)
         tab7_grid5.addWidget(tab7_combox_b1, 2, 2)
         tab7_bottom_groupbox2 = QGroupBox()
         tab7_bottom_groupbox2.setLayout(tab7_grid5)
 
-        tab7_grid6 = QGridLayout()
-        tab7_grid6.addWidget(tab7_bottom_checkbox, 0, 0)
-        tab7_grid6.addWidget(tab7_bottom_groupbox1, 1, 0)
-        tab7_grid6.addWidget(tab7_bottom_groupbox2, 1, 1)
-        self.tab7_groupbox2.setLayout(tab7_grid6)
+        tab7_grid6 = QVBoxLayout()
+        tab7_grid6.addWidget(tab7_bottom_checkbox)
+        tab7_grid6.addWidget(tab7_bottom_groupbox1)
+        tab7_grid6.addWidget(tab7_bottom_groupbox2)
+        self.tab7_bottom_groupbox = QGroupBox()
+        self.tab7_bottom_groupbox.setLayout(tab7_grid6)
+
+        self.tab7_stack.addWidget(tab7_left_groupbox)
+        self.tab7_stack.addWidget(tab7_mid_groupbox)
+        self.tab7_stack.addWidget(tab7_right_groupbox)
+        self.tab7_stack.addWidget(self.tab7_bottom_groupbox)
+
+    def addPointsFiles(self):
+        self.points_files_num += 1
+        self.points1[str(self.points_files_num)] = [QLabel("点位名:"),
+                                                    QLineEdit(),
+                                                    QLabel("点位文件名:"),
+                                                    QLineEdit()]
+        for i, widget in enumerate(self.points1[str(self.points_files_num)]):
+            self.tab7_grid1.addWidget(widget, self.points_files_num - 1, i)
+
+    def addPointsCoordinates(self):
+        self.points_coords_num += 1
+        self.points2[str(self.points_coords_num)] = [QLabel("点位名:"),
+                                                     QLineEdit(),
+                                                     QLabel("X:"),
+                                                     QLineEdit(),
+                                                     QLabel("Y:"),
+                                                     QLineEdit()]
+        for i, widget in enumerate(self.points2[str(self.points_coords_num)]):
+            self.tab7_grid2.addWidget(widget, self.points_coords_num - 1, i)
 
     def calculate_input_file(self):
         self.tab8_groupbox = QGroupBox()
@@ -1073,6 +1067,25 @@ class Swan(QDialog):
         input_lines.append(limiter_line)
 
         # ************************-----OBSTacle-----****************************
+        if self.obs_num == 0:
+            obstacle_line = "!OBSTacle"
+            input_lines.append(obstacle_line)
+        else:
+            for i in range(self.obs_num):
+                _key_name = str(i + 1) + "obs"
+                trcoef = self.obsParams[_key_name][1].text()
+                reflc = self.obsParams[_key_name][3].text()
+                obs_x1 = self.obsParams[_key_name][5].text()
+                obs_y1 = self.obsParams[_key_name][7].text()
+                obs_x2 = self.obsParams[_key_name][9].text()
+                obs_y2 = self.obsParams[_key_name][11].text()
+                if reflc:
+                    obstacle_line = " ".join(["OBSTacle TRANSm", trcoef, "REFL", reflc, "RSPEC LINE",
+                                              obs_x1, obs_y1, obs_x2, obs_y2, "\n"])
+                else:
+                    obstacle_line = " ".join(["OBSTacle TRANSm", trcoef, "LINE",
+                                              obs_x1, obs_y1, obs_x2, obs_y2, "\n"])
+                input_lines.append(obstacle_line)
 
         # ************************-----SETUP-----****************************
 
@@ -1102,7 +1115,21 @@ class Swan(QDialog):
         input_lines.append(numeric_line)
 
         # ************************-----POINTS-----****************************
-
+        if self.tab7_checkbox1.isChecked():
+            for i in range(self.points_files_num):
+                if self.points1[str(self.points_files_num)][3].text():
+                    sname = "\'" + self.points1[str(self.points_files_num)][1].text() + "\'"
+                    fname = "\'" + self.points1[str(self.points_files_num)][3].text() + "\'"
+                    points_line = " ".join(["POINTS", sname, "FILE", fname, "\n"])
+                    input_lines.append(points_line)
+        if self.tab7_checkbox2.isChecked():
+            for i in range(self.points_coords_num):
+                points_x = self.points1[str(self.points_coords_num)][3].text()
+                points_y = self.points1[str(self.points_coords_num)][3].text()
+                if points_x and points_y:
+                    sname = "\'" + self.points1[str(self.points_coords_num)][1].text() + "\'"
+                    points_line = " ".join(["POINTS", sname, points_x, points_y, "\n"])
+                    input_lines.append(points_line)
 
         # ************************-----COMPute-----****************************
         if self.tab6_radiobutton3.isChecked():
@@ -1119,8 +1146,6 @@ class Swan(QDialog):
         else:
             compute_line = "!COMPute"
         input_lines.append(compute_line)
-
-
 
         with open("input", 'w') as f_out:
             f_out.writelines(input_lines)
