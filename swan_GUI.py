@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -74,18 +75,17 @@ class Swan(QDialog):
         tab2.setLayout(tab2vbox)
 
         self.inputParameters()
-        tab3hbox = QHBoxLayout()
-        tab3hbox.addWidget(self.tab3listwidget)
-        tab3hbox.addWidget(self.tab3stack)
-        tab3.setLayout(tab3hbox)
-        self.connect(self.tab3listwidget, SIGNAL("currentRowChanged(int)"), self.tab3stack,
+        tab3_hbox = QHBoxLayout()
+        tab3_hbox.addWidget(self.tab3_listwidget)
+        tab3_hbox.addWidget(self.tab3_stack)
+        tab3.setLayout(tab3_hbox)
+        self.connect(self.tab3_listwidget, SIGNAL("currentRowChanged(int)"), self.tab3_stack,
                      SLOT("setCurrentIndex(int)"))
 
         self.boundarySet()
         tab4_hbox = QHBoxLayout()
         tab4_hbox.addWidget(self.tab4_groupbox1)
         tab4_hbox.addWidget(self.tab4_groupbox2)
-        tab4_hbox.addWidget(self.tab4_groupbox3)
         tab4.setLayout(tab4_hbox)
 
         self.source_sink_termSet()
@@ -131,6 +131,7 @@ class Swan(QDialog):
         self.hboxlayout = QHBoxLayout()
         self.hboxlayout.addWidget(self.pushButton)
         self.groupBox2.setLayout(self.hboxlayout)
+        self.input_lines = []
 
     def basicSet(self):
         self.tab1groupbox = QGroupBox()
@@ -213,41 +214,39 @@ class Swan(QDialog):
         self.tab2_radiobutton2.setChecked(True)
 
         self.groupbox_rec = QGroupBox()
-        label11 = QLabel(u'起始点')
-        label12 = QLabel(u'终点')
-        label13 = QLabel(u'步长')
-        x0 = QLabel('x0')
-        y0 = QLabel('y0')
-        x1 = QLabel('x1')
-        y1 = QLabel('y1')
-        dx = QLabel('dx')
-        dy = QLabel('dy')
-        linedit5 = QLineEdit()
-        linedit6 = QLineEdit()
-        linedit7 = QLineEdit()
-        linedit8 = QLineEdit()
-        linedit9 = QLineEdit()
-        linedit10 = QLineEdit()
-        grid2 = QGridLayout()
-        grid2.addWidget(x0, 0, 1)
-        grid2.addWidget(y0, 0, 2)
-        grid2.addWidget(label11, 1, 0)
-        grid2.addWidget(linedit5, 1, 1)
-        grid2.addWidget(linedit6, 1, 2)
-        grid2.addWidget(x1, 2, 1)
-        grid2.addWidget(y1, 2, 2)
-        grid2.addWidget(label12, 3, 0)
-        grid2.addWidget(linedit7, 3, 1)
-        grid2.addWidget(linedit8, 3, 2)
-        grid2.addWidget(dx, 4, 1)
-        grid2.addWidget(dy, 4, 2)
-        grid2.addWidget(label13, 5, 0)
-        grid2.addWidget(linedit9, 5, 1)
-        grid2.addWidget(linedit10, 5, 2)
-        self.groupbox_rec.setLayout(grid2)
+        tab2_label1 = QLabel("起始点坐标:")
+        tab2_label_x1 = QLabel("X1:")
+        self.tab2_linedit_x1 = QLineEdit()
+        tab2_label_y1 = QLabel("Y1:")
+        self.tab2_linedit_y1 = QLineEdit()
+        tab2_label2 = QLabel("终点坐标:")
+        tab2_label_x2 = QLabel("X2:")
+        self.tab2_linedit_x2 = QLineEdit()
+        tab2_label_y2 = QLabel("Y2:")
+        self.tab2_linedit_y2 = QLineEdit()
+        tab2_label3 = QLabel("步长:")
+        tab2_label_dx = QLabel("DX:")
+        self.tab2_linedit_dx = QLineEdit()
+        tab2_label_dy = QLabel("DY:")
+        self.tab2_linedit_dy = QLineEdit()
+        tab2_grid1 = QGridLayout()
+        tab2_grid1.addWidget(tab2_label1, 0, 0)
+        tab2_grid1.addWidget(tab2_label_x1, 0, 1)
+        tab2_grid1.addWidget(self.tab2_linedit_x1, 0, 2)
+        tab2_grid1.addWidget(tab2_label_y1, 0, 3)
+        tab2_grid1.addWidget(self.tab2_linedit_y1, 0, 4)
+        tab2_grid1.addWidget(tab2_label2, 1, 0)
+        tab2_grid1.addWidget(tab2_label_x2, 1, 1)
+        tab2_grid1.addWidget(self.tab2_linedit_x2, 1, 2)
+        tab2_grid1.addWidget(tab2_label_y2, 1, 3)
+        tab2_grid1.addWidget(self.tab2_linedit_y2, 1, 4)
+        tab2_grid1.addWidget(tab2_label3, 2, 0)
+        tab2_grid1.addWidget(tab2_label_dx, 2, 1)
+        tab2_grid1.addWidget(self.tab2_linedit_dx, 2, 2)
+        tab2_grid1.addWidget(tab2_label_dy, 2, 3)
+        tab2_grid1.addWidget(self.tab2_linedit_dy, 2, 4)
+        self.groupbox_rec.setLayout(tab2_grid1)
         self.groupbox_rec.setVisible(False)
-        # if self.radiobutton1.isChecked():
-        #     self.groupbox_rec.setVisible(True)
         self.connect(self.tab2_radiobutton1, SIGNAL("clicked()"), self.groupbox_rec.show)
         self.connect(self.tab2_radiobutton2, SIGNAL("clicked()"), self.groupbox_rec.hide)
 
@@ -259,110 +258,115 @@ class Swan(QDialog):
         self.tab2groupbox.setLayout(grid3)
 
     def inputParameters(self):
-        self.tab3listwidget = QListWidget()
-        self.tab3listwidget.insertItem(0, u"非定常变量")
-        self.tab3listwidget.insertItem(1, u"定常输入")
+        self.tab3_listwidget = QListWidget()
+        self.tab3_listwidget.insertItem(0, u"非定常变量")
+        self.tab3_listwidget.insertItem(1, u"定常输入")
 
-        self.tab3stack = QStackedWidget()
+        self.tab3_stack = QStackedWidget()
 
-        tab3table = QTableWidget(7, 2)
-        index1 = QLabel(u'要素')
-        self.tab3_checkbox1 = QCheckBox(u'地形')
-        self.tab3_checkbox2 = QCheckBox(u'水位')
-        self.tab3_checkbox3 = QCheckBox(u'风')
-        self.tab3_checkbox4 = QCheckBox(u'流')
-        self.tab3_checkbox5 = QCheckBox(u'摩阻系数')
-        self.tab3_checkbox6 = QCheckBox(u'植被')
-        boxes1 = [index1, self.tab3_checkbox1, self.tab3_checkbox2, self.tab3_checkbox3,
-                  self.tab3_checkbox4, self.tab3_checkbox5, self.tab3_checkbox6]
-        for i, box in enumerate(boxes1):
-            tab3table.setCellWidget(i, 0, box)
-        index2 = QLabel(u'时变')
-        tab3table.setCellWidget(0, 1, index2)
-        for i in range(1, 7):
-            checkbox7 = QCheckBox(u'是')
-            tab3table.setCellWidget(i, 1, checkbox7)
+        tab3_groupbox1 = QGroupBox(u'选择要输入的要素')
+        self.tab3_boxes = [QCheckBox(u'地形'), QCheckBox(u'时变'), QComboBox(), QLineEdit(),
+                           QCheckBox(u'水位'), QCheckBox(u'时变'), QComboBox(), QLineEdit(),
+                           QCheckBox(u'风'), QCheckBox(u'时变'), QComboBox(), QLineEdit(),
+                           QCheckBox(u'流'), QCheckBox(u'时变'), QComboBox(), QLineEdit(),
+                           QCheckBox(u'摩阻系数'), QCheckBox(u'时变'), QComboBox(), QLineEdit(),
+                           QCheckBox(u'植被'), QCheckBox(u'时变'), QComboBox(), QLineEdit()]
+        tab3_grid1 = QGridLayout()
 
-        tab3groupbox = QGroupBox()
-        index3 = QLabel(u'时序设置')
-        index4 = QLabel(u'选择文件')
-        tab3label1 = QLabel(u'起始时间:')
-        tab3label2 = QLabel(u'终止时间:')
-        tab3label5 = QLabel(u'时间步长:')
-        tab3linedit1 = QLineEdit()
-        tab3combobox = QComboBox()
-        tab3combobox.addItems(['min', 'sec', 'hr'])
-        self.tab3datetime1 = QDateTimeEdit()
-        self.tab3datetime2 = QDateTimeEdit()
-        self.tab3datetime1.setDateTime(QDateTime.currentDateTime())
-        self.tab3datetime2.setDateTime(QDateTime.currentDateTime())
-        tab3button1 = QPushButton(u'读入地形')
-        tab3button2 = QPushButton(u'读入风场')
+        def state_changed():
+            for i, box in enumerate(self.tab3_boxes):
+                if i % 4 == 0:
+                    if box.isChecked():
+                        self.tab3_boxes[i + 1].setDisabled(False)
+                        self.tab3_boxes[i + 2].setDisabled(False)
+                        self.tab3_boxes[i + 3].setDisabled(False)
+                    else:
+                        self.tab3_boxes[i + 1].setDisabled(True)
+                        self.tab3_boxes[i + 2].setDisabled(True)
+                        self.tab3_boxes[i + 3].setDisabled(True)
 
-        gridlayout = QGridLayout()
-        gridlayout.addWidget(index3, 0, 0)
-        gridlayout.addWidget(tab3label1, 1, 0)
-        gridlayout.addWidget(self.tab3datetime1, 1, 1)
-        gridlayout.addWidget(tab3label2, 2, 0)
-        gridlayout.addWidget(self.tab3datetime2, 2, 1)
-        gridlayout.addWidget(tab3label5, 3, 0)
-        gridlayout.addWidget(tab3linedit1, 3, 1)
-        gridlayout.addWidget(tab3combobox, 3, 2)
-        gridlayout.addWidget(index4, 0, 3)
-        gridlayout.addWidget(tab3button1, 1, 3)
-        gridlayout.addWidget(tab3button2, 2, 3)
-        tab3groupbox.setLayout(gridlayout)
+        for i, box in enumerate(self.tab3_boxes):
+            if i % 4 == 2:
+                box.addItems(["单个文件名", "系列文件名"])
+            if i % 4 != 0:
+                box.setDisabled(True)
+            else:
+                box.stateChanged.connect(state_changed)
+                # box.toggled.connect(self.tab3_boxes[i + 1].setDisabled)
+            tab3_grid1.addWidget(box, i / 4, i % 4)
 
-        hbox = QHBoxLayout()
-        hbox.addWidget(tab3table)
-        hbox.addWidget(tab3groupbox)
+        tab3_groupbox1.setLayout(tab3_grid1)
 
-        tab3groupbox2 = QGroupBox()
-        tab3groupbox2.setLayout(hbox)
+        tab3_groupbox2 = QGroupBox(u'时序设置')
+        tab3_label1 = QLabel(u'起始时间:')
+        tab3_label2 = QLabel(u'终止时间:')
+        tab3_label3 = QLabel(u'时间步长:')
+        self.tab3_linedit1 = QLineEdit()
+        self.tab3_combobox = QComboBox()
+        self.tab3_combobox.addItems(['MIn', 'Sec', 'HR'])
+        self.tab3_datetime1 = QDateTimeEdit()
+        self.tab3_datetime2 = QDateTimeEdit()
+        self.tab3_datetime1.setDateTime(QDateTime.currentDateTime())
+        self.tab3_datetime2.setDateTime(QDateTime.currentDateTime())
 
-        tab3groupbox3 = QGroupBox()
+        tab3_grid2 = QGridLayout()
+        tab3_grid2.addWidget(tab3_label1, 0, 0)
+        tab3_grid2.addWidget(self.tab3_datetime1, 0, 1)
+        tab3_grid2.addWidget(tab3_label2, 1, 0)
+        tab3_grid2.addWidget(self.tab3_datetime2, 1, 1)
+        tab3_grid2.addWidget(tab3_label3, 2, 0)
+        tab3_grid2.addWidget(self.tab3_linedit1, 2, 1)
+        tab3_grid2.addWidget(self.tab3_combobox, 2, 2)
+        tab3_groupbox2.setLayout(tab3_grid2)
 
-        tab3label6 = QLabel(u'定常风')
-        tab3label7 = QLabel(u'风速:')
-        tab3label8 = QLabel(u'm/s')
-        tab3label9 = QLabel(u'风向:')
-        tab3label10 = QLabel(u'°')
-        tab3label11 = QLabel(u'拖曳力系数:')
+        tab3_vbox1 = QVBoxLayout()
+        tab3_vbox1.addWidget(tab3_groupbox1)
+        tab3_vbox1.addWidget(tab3_groupbox2)
+        tab3_group1 = QGroupBox()
+        tab3_group1.setLayout(tab3_vbox1)
+
+        tab3_groupbox3 = QGroupBox(u'定常风')
+        tab3_label4 = QLabel(u'风速:')
+        tab3_label5 = QLabel(u'm/s')
+        tab3_label6 = QLabel(u'风向:')
+        tab3_label7 = QLabel(u'°')
         self.tab3_linedit2 = QLineEdit()
         self.tab3_linedit3 = QLineEdit()
-        tab3linedit4 = QLineEdit(u'0.0015')
-        tab3label12 = QLabel(u'摩阻系数')
-        tab3label13 = QLabel(u'JONswap')
-        tab3radiobutton1 = QRadioButton(u'恒定')
-        tab3radiobutton1.setChecked(True)
-        self.tab3linedit5 = QLineEdit(u'0.0007')
-        tab3radiobutton2 = QRadioButton(u'变化')
-        tab3radiobutton2.toggled.connect(self.tab3linedit5.setDisabled)
+        tab3_grid3 = QGridLayout()
+        tab3_grid3.addWidget(tab3_label4, 0, 0)
+        tab3_grid3.addWidget(self.tab3_linedit2, 0, 1)
+        tab3_grid3.addWidget(tab3_label5, 0, 2)
+        tab3_grid3.addWidget(tab3_label6, 1, 0)
+        tab3_grid3.addWidget(self.tab3_linedit3, 1, 1)
+        tab3_grid3.addWidget(tab3_label7, 1, 2)
+        tab3_groupbox3.setLayout(tab3_grid3)
 
-        gridlayout2 = QGridLayout()
-        gridlayout2.addWidget(tab3label6, 0, 0)
-        gridlayout2.addWidget(tab3label7, 1, 0)
-        gridlayout2.addWidget(self.tab3_linedit2, 1, 1)
-        gridlayout2.addWidget(tab3label8, 1, 2)
-        gridlayout2.addWidget(tab3label9, 2, 0)
-        gridlayout2.addWidget(self.tab3_linedit3, 2, 1)
-        gridlayout2.addWidget(tab3label10, 2, 2)
-        gridlayout2.addWidget(tab3label11, 3, 0)
-        gridlayout2.addWidget(tab3linedit4, 3, 1)
-        gridlayout2.addWidget(tab3label12, 4, 0)
-        gridlayout2.addWidget(tab3label13, 5, 0)
-        gridlayout2.addWidget(tab3radiobutton1, 5, 1)
-        gridlayout2.addWidget(self.tab3linedit5, 5, 2)
-        gridlayout2.addWidget(tab3radiobutton2, 6, 1)
-        tab3groupbox3.setLayout(gridlayout2)
+        tab3_groupbox4 = QGroupBox(u'摩阻系数')
+        tab3_label9 = QLabel(u'JONswap:')
+        self.tab3_radiobutton1 = QRadioButton(u'恒定')
+        self.tab3_radiobutton1.setChecked(True)
+        self.tab3_linedit4 = QLineEdit(u'0.0007')
+        self.tab3_radiobutton2 = QRadioButton(u'变化')
+        self.tab3_radiobutton2.toggled.connect(self.tab3_linedit4.setDisabled)
+        tab3_grid4 = QGridLayout()
+        tab3_grid4.addWidget(tab3_label9, 0, 0)
+        tab3_grid4.addWidget(self.tab3_radiobutton1, 0, 1)
+        tab3_grid4.addWidget(self.tab3_linedit4, 0, 2)
+        tab3_grid4.addWidget(self.tab3_radiobutton2, 1, 1)
+        tab3_groupbox4.setLayout(tab3_grid4)
 
-        self.tab3stack.addWidget(tab3groupbox2)
-        self.tab3stack.addWidget(tab3groupbox3)
+        tab3_group2 = QGroupBox()
+        tab3_vbox2 = QVBoxLayout()
+        tab3_vbox2.addWidget(tab3_groupbox3)
+        tab3_vbox2.addWidget(tab3_groupbox4)
+        tab3_group2.setLayout(tab3_vbox2)
+
+        self.tab3_stack.addWidget(tab3_group1)
+        self.tab3_stack.addWidget(tab3_group2)
 
     def boundarySet(self):
         self.tab4_groupbox1 = QGroupBox()
         self.tab4_groupbox2 = QGroupBox("边界参数")
-        self.tab4_groupbox3 = QGroupBox("嵌入边界")
 
         tab4_label1 = QLabel("边界谱型:")
         self.tab4_combox1 = QComboBox()
@@ -418,15 +422,9 @@ class Swan(QDialog):
         tab4_gridlayout2.addWidget(tab4_groupbox4, 1, 0, 1, 5)
         self.tab4_groupbox2.setLayout(tab4_gridlayout2)
 
-        tab4_button1 = QPushButton("读入边界文件")
-        tab4_vbox1 = QVBoxLayout()
-        tab4_vbox1.addWidget(tab4_button1)
-        self.tab4_groupbox3.setLayout(tab4_vbox1)
-
     def source_sink_termSet(self):
         self.tab5_groupbox = QGroupBox()
         tab5_gridlayout1 = QGridLayout()
-        # (["风浪模式","波浪作用","其他","水生植物影响","水工建筑物"])
         tab5_label1 = QLabel("风能输入模式:")
         self.tab5_combox1 = QComboBox()
         self.tab5_combox1.addItems(["KOMen", "JANSsen", "WESTHuysen"])
@@ -445,6 +443,7 @@ class Swan(QDialog):
         self.tab5_checkbox5 = QCheckBox("底摩阻")
         self.tab5_combox4 = QComboBox()
         self.tab5_combox4.addItems(["JONswap", "COLLins", "MADsen"])
+        self.tab5_checkbox6 = QCheckBox("波浪增水")
 
         tab5_groupbox1 = QGroupBox("水生植物影响")
         tab5_label5 = QLabel("高度:")
@@ -455,17 +454,15 @@ class Swan(QDialog):
         self.tab5_linedit4 = QLineEdit()
         tab5_label8 = QLabel("拖曳力:")
         self.tab5_linedit5 = QLineEdit()
-        self.tab5_checkbox6 = QCheckBox("波浪增水")
         tab5_gridlayout2 = QGridLayout()
         tab5_gridlayout2.addWidget(tab5_label5, 0, 0)
         tab5_gridlayout2.addWidget(self.tab5_linedit2, 0, 1)
         tab5_gridlayout2.addWidget(tab5_label6, 0, 2)
         tab5_gridlayout2.addWidget(self.tab5_linedit3, 0, 3)
-        tab5_gridlayout2.addWidget(tab5_label7, 0, 4)
-        tab5_gridlayout2.addWidget(self.tab5_linedit4, 0, 5)
         tab5_gridlayout2.addWidget(tab5_label8, 1, 0)
         tab5_gridlayout2.addWidget(self.tab5_linedit5, 1, 1)
-        tab5_gridlayout2.addWidget(self.tab5_checkbox6, 1, 2)
+        tab5_gridlayout2.addWidget(tab5_label7, 1, 2)
+        tab5_gridlayout2.addWidget(self.tab5_linedit4, 1, 3)
         tab5_groupbox1.setLayout(tab5_gridlayout2)
 
         tab5_groupbox2 = QGroupBox("水工建筑物")
@@ -518,8 +515,9 @@ class Swan(QDialog):
         tab5_gridlayout1.addWidget(self.tab5_combox3, 2, 1)
         tab5_gridlayout1.addWidget(self.tab5_checkbox5, 2, 2)
         tab5_gridlayout1.addWidget(self.tab5_combox4, 2, 3)
-        tab5_gridlayout1.addWidget(tab5_groupbox1, 3, 0, 1, 6)
-        tab5_gridlayout1.addWidget(tab5_groupbox2, 4, 0, 1, 6)
+        tab5_gridlayout1.addWidget(self.tab5_checkbox6, 3, 0)
+        tab5_gridlayout1.addWidget(tab5_groupbox1, 4, 0, 1, 6)
+        tab5_gridlayout1.addWidget(tab5_groupbox2, 5, 0, 1, 6)
 
         self.tab5_groupbox.setLayout(tab5_gridlayout1)
 
@@ -630,15 +628,21 @@ class Swan(QDialog):
     def outputSet(self):
         self.tab7_listwidget = QListWidget()
         self.tab7_listwidget.insertItem(0, u"输出点")
-        self.tab7_listwidget.insertItem(1, u"输出域")
-        self.tab7_listwidget.insertItem(2, u"输出变量")
-        self.tab7_listwidget.insertItem(3, u"嵌套输出")
+        self.tab7_listwidget.insertItem(1, u"输出点变量设置")
+        self.tab7_listwidget.insertItem(2, u"输出域")
+        self.tab7_listwidget.insertItem(3, u"输出域变量设置")
+        self.tab7_listwidget.insertItem(4, u"嵌套输出")
+        self.tab7_listwidget.insertItem(5, "输出时间设置")
         self.tab7_stack = QStackedWidget()
 
-        tab7_left_groupbox = QGroupBox("输出点")
-        tab7_mid_groupbox = QGroupBox("输出域")
-        tab7_right_groupbox = QGroupBox("输出变量")
+        tab7_group1 = QGroupBox("输出点")
+        tab7_group2 = QGroupBox("输出点变量设置")
+        tab7_group3 = QGroupBox("输出域")
+        tab7_group4 = QGroupBox("输出域变量设置")
+        tab7_group5 = QGroupBox("嵌套输出")
+        tab7_group6 = QGroupBox("输出时间设置")
 
+        # -------------------output points----------------------
         self.tab7_checkbox1 = QCheckBox("读入点位文件")
         self.tab7_pushbutton1 = QPushButton("+")
         self.tab7_pushbutton1.clicked.connect(self.addPointsFiles)
@@ -648,95 +652,114 @@ class Swan(QDialog):
 
         self.points_files_num = 1
         self.points1 = {}
-        self.points1[str(self.points_files_num)] = [QLabel("点位名:"),
-                                                    QLineEdit(),
-                                                    QLabel("点位文件名:"),
-                                                    QLineEdit()]
-        self.tab7_grid1 = QGridLayout()
+        self.points1[str(self.points_files_num)] = [QLabel("点位名:"), QLineEdit(),
+                                                    QLabel("点位文件名:"), QLineEdit(),
+                                                    QLabel("结果文件名:"), QLineEdit()]
+        self.tab7_grid_p1 = QGridLayout()
         for i, widget in enumerate(self.points1[str(self.points_files_num)]):
-            self.tab7_grid1.addWidget(widget, self.points_files_num - 1, i)
+            self.tab7_grid_p1.addWidget(widget, self.points_files_num - 1, i)
         tab7_groupbox1 = QGroupBox()
-        tab7_groupbox1.setLayout(self.tab7_grid1)
+        tab7_groupbox1.setLayout(self.tab7_grid_p1)
 
         self.points_coords_num = 1
         self.points2 = {}
-        self.points2[str(self.points_coords_num)] = [QLabel("点位名:"),
-                                                     QLineEdit(),
-                                                     QLabel("X:"),
-                                                     QLineEdit(),
-                                                     QLabel("Y:"),
-                                                     QLineEdit()]
-        self.tab7_grid2 = QGridLayout()
+        self.points2[str(self.points_coords_num)] = [QLabel("点位名:"), QLineEdit(),
+                                                     QLabel("X:"), QLineEdit(),
+                                                     QLabel("Y:"), QLineEdit(),
+                                                     QLabel("结果文件名:"), QLineEdit()]
+        self.tab7_grid_p2 = QGridLayout()
         for i, widget in enumerate(self.points2[str(self.points_coords_num)]):
-            self.tab7_grid2.addWidget(widget, self.points_coords_num - 1, i)
+            self.tab7_grid_p2.addWidget(widget, self.points_coords_num - 1, i)
         tab7_groupbox2 = QGroupBox()
-        tab7_groupbox2.setLayout(self.tab7_grid2)
+        tab7_groupbox2.setLayout(self.tab7_grid_p2)
 
-        tab7_1_grid = QGridLayout()
-        tab7_1_grid.addWidget(self.tab7_checkbox1, 0, 0)
-        tab7_1_grid.addWidget(self.tab7_pushbutton1, 0, 1)
-        tab7_1_grid.addWidget(tab7_groupbox1, 1, 0, 1, 2)
-        tab7_1_grid.addWidget(self.tab7_checkbox2, 2, 0)
-        tab7_1_grid.addWidget(self.tab7_pushbutton2, 2, 1)
-        tab7_1_grid.addWidget(tab7_groupbox2, 3, 0, 1, 2)
-        tab7_left_groupbox.setLayout(tab7_1_grid)
+        tab7_grid1 = QGridLayout()
+        tab7_grid1.addWidget(self.tab7_checkbox1, 0, 0)
+        tab7_grid1.addWidget(self.tab7_pushbutton1, 0, 1)
+        tab7_grid1.addWidget(tab7_groupbox1, 1, 0, 1, 2)
+        tab7_grid1.addWidget(self.tab7_checkbox2, 2, 0)
+        tab7_grid1.addWidget(self.tab7_pushbutton2, 2, 1)
+        tab7_grid1.addWidget(tab7_groupbox2, 3, 0, 1, 2)
+        tab7_group1.setLayout(tab7_grid1)
 
-        tab7_checkbox8 = QCheckBox("矩形域")
-        tab7_label_m1 = QLabel("左下角坐标:")
-        tab7_label_mx1 = QLabel("X1:")
-        tab7_linedit_mx1 = QLineEdit()
-        tab7_label_my1 = QLabel("Y1:")
-        tab7_linedit_my1 = QLineEdit()
-        tab7_label_m2 = QLabel("右上角坐标:")
-        tab7_label_mx2 = QLabel("X2:")
-        tab7_linedit_mx2 = QLineEdit()
-        tab7_label_my2 = QLabel("Y2:")
-        tab7_linedit_my2 = QLineEdit()
-        tab7_label_m3 = QLabel("步长:")
-        tab7_label_mdx = QLabel("DX:")
-        tab7_linedit_mdx = QLineEdit()
-        tab7_label_mdy = QLabel("DY:")
-        tab7_linedit_mdy = QLineEdit()
+        # -------------------output points variables set----------------------
         tab7_grid2 = QGridLayout()
-        tab7_grid2.addWidget(tab7_label_m1, 0, 0)
-        tab7_grid2.addWidget(tab7_label_mx1, 0, 1)
-        tab7_grid2.addWidget(tab7_linedit_mx1, 0, 2)
-        tab7_grid2.addWidget(tab7_label_my1, 0, 3)
-        tab7_grid2.addWidget(tab7_linedit_my1, 0, 4)
-        tab7_grid2.addWidget(tab7_label_m2, 1, 0)
-        tab7_grid2.addWidget(tab7_label_mx2, 1, 1)
-        tab7_grid2.addWidget(tab7_linedit_mx2, 1, 2)
-        tab7_grid2.addWidget(tab7_label_my2, 1, 3)
-        tab7_grid2.addWidget(tab7_linedit_my2, 1, 4)
-        tab7_grid2.addWidget(tab7_label_m3, 2, 0)
-        tab7_grid2.addWidget(tab7_label_mdx, 2, 1)
-        tab7_grid2.addWidget(tab7_linedit_mdx, 2, 2)
-        tab7_grid2.addWidget(tab7_label_mdy, 2, 3)
-        tab7_grid2.addWidget(tab7_linedit_mdy, 2, 4)
-        tab7_mid_groupbox1 = QGroupBox()
-        tab7_mid_groupbox1.setLayout(tab7_grid2)
-
-        tab7_checkbox9 = QCheckBox("输出所有点位")
-        tab7_vbox2 = QVBoxLayout()
-        tab7_vbox2.addWidget(tab7_checkbox8)
-        tab7_vbox2.addWidget(tab7_mid_groupbox1)
-        tab7_vbox2.addWidget(tab7_checkbox9)
-        tab7_mid_groupbox.setLayout(tab7_vbox2)
-
-        tab7_grid3 = QGridLayout()
         output_vars = ["HSIGN", "HSWELL", "DIR", "PDIR", "TDIR", "TM01", "RTM01", "RTP", "TM02", "FSPR", "DSPR", "VEL",
                        "FRCOEF", "WIND", "DISSIP", "QB", "TRANSP", "FORCE", "UBOT", "URMS", "WLEN", "STEEPNESS",
                        "DHSIGN", "DRTM01", "LEAK", "TSEC", "XP", "YP", "DIST", "SETUP", "TMM10", "RTMM10", "DEPTH",
                        "TMBOT", "QP", "BFI", "NPLANT", " WATLEV ", "BOTLEV", "TPS", "DISBOT", " DISSURF ", " DISWCAP",
                        "GENE", "GENW", "REDI", "REDQ", "REDT", "PROPA", "PROPX", "PROPT", "PROPS", "RADS", " LWAVP"]
+        self.output_points_vars = []
         for i in range(len(output_vars)):
-            tab7_right_checkbox = QCheckBox(output_vars[i])
+            self.output_points_vars.append(QCheckBox(output_vars[i]))
             # quotient = num // 6
             # remainder = i % 6
-            tab7_grid3.addWidget(tab7_right_checkbox, i // 6, i % 6)
-        tab7_right_groupbox.setLayout(tab7_grid3)
+            tab7_grid2.addWidget(self.output_points_vars[i], i // 6, i % 6)
+        tab7_group2.setLayout(tab7_grid2)
 
-        tab7_bottom_checkbox = QCheckBox("嵌套输出")
+        # -------------------output frame----------------------
+        self.tab7_checkbox3 = QCheckBox("矩形域")
+        tab7_label2 = QLabel("区域名：")
+        self.tab7_linedit2 = QLineEdit()
+        tab7_label_m1 = QLabel("左下角坐标:")
+        tab7_label_mx1 = QLabel("X1:")
+        self.tab7_linedit_mx1 = QLineEdit()
+        tab7_label_my1 = QLabel("Y1:")
+        self.tab7_linedit_my1 = QLineEdit()
+        tab7_label_m2 = QLabel("右上角坐标:")
+        tab7_label_mx2 = QLabel("X2:")
+        self.tab7_linedit_mx2 = QLineEdit()
+        tab7_label_my2 = QLabel("Y2:")
+        self.tab7_linedit_my2 = QLineEdit()
+        tab7_label_m3 = QLabel("步长:")
+        tab7_label_mdx = QLabel("DX:")
+        self.tab7_linedit_mdx = QLineEdit()
+        tab7_label_mdy = QLabel("DY:")
+        self.tab7_linedit_mdy = QLineEdit()
+        tab7_grid_f1 = QGridLayout()
+        tab7_grid_f1.addWidget(tab7_label_m1, 0, 0)
+        tab7_grid_f1.addWidget(tab7_label_mx1, 0, 1)
+        tab7_grid_f1.addWidget(self.tab7_linedit_mx1, 0, 2)
+        tab7_grid_f1.addWidget(tab7_label_my1, 0, 3)
+        tab7_grid_f1.addWidget(self.tab7_linedit_my1, 0, 4)
+        tab7_grid_f1.addWidget(tab7_label_m2, 1, 0)
+        tab7_grid_f1.addWidget(tab7_label_mx2, 1, 1)
+        tab7_grid_f1.addWidget(self.tab7_linedit_mx2, 1, 2)
+        tab7_grid_f1.addWidget(tab7_label_my2, 1, 3)
+        tab7_grid_f1.addWidget(self.tab7_linedit_my2, 1, 4)
+        tab7_grid_f1.addWidget(tab7_label_m3, 2, 0)
+        tab7_grid_f1.addWidget(tab7_label_mdx, 2, 1)
+        tab7_grid_f1.addWidget(self.tab7_linedit_mdx, 2, 2)
+        tab7_grid_f1.addWidget(tab7_label_mdy, 2, 3)
+        tab7_grid_f1.addWidget(self.tab7_linedit_mdy, 2, 4)
+        tab7_groupbox3 = QGroupBox()
+        tab7_groupbox3.setLayout(tab7_grid_f1)
+
+        tab7_label3 = QLabel("输出域结果文件名：")
+        self.tab7_linedit3 = QLineEdit()
+        tab7_grid3 = QGridLayout()
+        tab7_grid3.addWidget(self.tab7_checkbox3, 0, 0)
+        tab7_grid3.addWidget(tab7_label2, 1, 0)
+        tab7_grid3.addWidget(self.tab7_linedit2, 1, 1)
+        tab7_grid3.addWidget(tab7_groupbox3, 2, 0, 1, 3)
+        tab7_grid3.addWidget(tab7_label3, 3, 0)
+        tab7_grid3.addWidget(self.tab7_linedit3, 3, 1)
+        tab7_group3.setLayout(tab7_grid3)
+
+        # -------------------output frame variables set----------------------
+        tab7_grid4 = QGridLayout()
+        self.output_frame_vars = []
+        for i in range(len(output_vars)):
+            self.output_frame_vars.append(QCheckBox(output_vars[i]))
+            # quotient = num // 6
+            # remainder = i % 6
+            tab7_grid4.addWidget(self.output_frame_vars[i], i // 6, i % 6)
+        tab7_group4.setLayout(tab7_grid4)
+
+        # -------------------output nest----------------------
+        self.tab7_checkbox4 = QCheckBox("嵌套输出")
+        tab7_label4 = QLabel("嵌套网格名：")
+        self.tab7_linedit4 = QLineEdit()
         tab7_label_bx1 = QLabel("X1:")
         tab7_linedit_bx1 = QLineEdit()
         tab7_label_by1 = QLabel("Y1:")
@@ -749,135 +772,162 @@ class Swan(QDialog):
         tab7_linedit_bdx = QLineEdit()
         tab7_label_bdy = QLabel("DY:")
         tab7_linedit_bdy = QLineEdit()
-        tab7_grid4 = QGridLayout()
-        tab7_grid4.addWidget(tab7_label_bx1, 0, 0)
-        tab7_grid4.addWidget(tab7_linedit_bx1, 0, 1)
-        tab7_grid4.addWidget(tab7_label_by1, 0, 2)
-        tab7_grid4.addWidget(tab7_linedit_by1, 0, 3)
-        tab7_grid4.addWidget(tab7_label_bx2, 1, 0)
-        tab7_grid4.addWidget(tab7_linedit_bx2, 1, 1)
-        tab7_grid4.addWidget(tab7_label_by2, 1, 2)
-        tab7_grid4.addWidget(tab7_linedit_by2, 1, 3)
-        tab7_grid4.addWidget(tab7_label_bdx, 2, 0)
-        tab7_grid4.addWidget(tab7_linedit_bdx, 2, 1)
-        tab7_grid4.addWidget(tab7_label_bdy, 2, 2)
-        tab7_grid4.addWidget(tab7_linedit_bdy, 2, 3)
-        tab7_bottom_groupbox1 = QGroupBox()
-        tab7_bottom_groupbox1.setLayout(tab7_grid4)
+        tab7_grid_g1 = QGridLayout()
+        tab7_grid_g1.addWidget(tab7_label_bx1, 0, 0)
+        tab7_grid_g1.addWidget(tab7_linedit_bx1, 0, 1)
+        tab7_grid_g1.addWidget(tab7_label_by1, 0, 2)
+        tab7_grid_g1.addWidget(tab7_linedit_by1, 0, 3)
+        tab7_grid_g1.addWidget(tab7_label_bx2, 1, 0)
+        tab7_grid_g1.addWidget(tab7_linedit_bx2, 1, 1)
+        tab7_grid_g1.addWidget(tab7_label_by2, 1, 2)
+        tab7_grid_g1.addWidget(tab7_linedit_by2, 1, 3)
+        tab7_grid_g1.addWidget(tab7_label_bdx, 2, 0)
+        tab7_grid_g1.addWidget(tab7_linedit_bdx, 2, 1)
+        tab7_grid_g1.addWidget(tab7_label_bdy, 2, 2)
+        tab7_grid_g1.addWidget(tab7_linedit_bdy, 2, 3)
+        tab7_groupbox4 = QGroupBox()
+        tab7_groupbox4.setLayout(tab7_grid_g1)
 
+        tab7_label5 = QLabel("嵌套输出结果文件名：")
+        self.tab7_linedit5 = QLineEdit()
+        tab7_grid5 = QGridLayout()
+        tab7_grid5.addWidget(self.tab7_checkbox4, 0, 0)
+        tab7_grid5.addWidget(tab7_label4, 1, 0)
+        tab7_grid5.addWidget(self.tab7_linedit4, 1, 1)
+        tab7_grid5.addWidget(tab7_groupbox4, 2, 0, 1, 3)
+        tab7_grid5.addWidget(tab7_label5, 3, 0)
+        tab7_grid5.addWidget(self.tab7_linedit5, 3, 1)
+        tab7_group5.setLayout(tab7_grid5)
+
+        # -------------------output time set----------------------
         tab7_label_t1 = QLabel(u'起始时间:')
         tab7_label_dt = QLabel(u'时间步长:')
-        tab7_linedit_bt = QLineEdit()
-        tab7_combox_b1 = QComboBox()
-        tab7_combox_b1.addItems(['MIN', 'SEC', 'HR'])
+        self.tab7_linedit_bt = QLineEdit()
+        self.tab7_combox_b1 = QComboBox()
+        self.tab7_combox_b1.addItems(['MIN', 'SEC', 'HR'])
         self.tab7_datetime1 = QDateTimeEdit()
         self.tab7_datetime1.setDateTime(QDateTime.currentDateTime())
-        tab7_grid5 = QGridLayout()
-        tab7_grid5.addWidget(tab7_label_t1, 0, 0)
-        tab7_grid5.addWidget(self.tab7_datetime1, 0, 1)
-        tab7_grid5.addWidget(tab7_label_dt, 2, 0)
-        tab7_grid5.addWidget(tab7_linedit_bt, 2, 1)
-        tab7_grid5.addWidget(tab7_combox_b1, 2, 2)
-        tab7_bottom_groupbox2 = QGroupBox()
-        tab7_bottom_groupbox2.setLayout(tab7_grid5)
+        tab7_grid6 = QGridLayout()
+        tab7_grid6.addWidget(tab7_label_t1, 0, 0)
+        tab7_grid6.addWidget(self.tab7_datetime1, 0, 1)
+        tab7_grid6.addWidget(tab7_label_dt, 2, 0)
+        tab7_grid6.addWidget(self.tab7_linedit_bt, 2, 1)
+        tab7_grid6.addWidget(self.tab7_combox_b1, 2, 2)
+        tab7_group6 = QGroupBox()
+        tab7_group6.setLayout(tab7_grid6)
 
-        tab7_grid6 = QVBoxLayout()
-        tab7_grid6.addWidget(tab7_bottom_checkbox)
-        tab7_grid6.addWidget(tab7_bottom_groupbox1)
-        tab7_grid6.addWidget(tab7_bottom_groupbox2)
-        self.tab7_bottom_groupbox = QGroupBox()
-        self.tab7_bottom_groupbox.setLayout(tab7_grid6)
-
-        self.tab7_stack.addWidget(tab7_left_groupbox)
-        self.tab7_stack.addWidget(tab7_mid_groupbox)
-        self.tab7_stack.addWidget(tab7_right_groupbox)
-        self.tab7_stack.addWidget(self.tab7_bottom_groupbox)
+        self.tab7_stack.addWidget(tab7_group1)
+        self.tab7_stack.addWidget(tab7_group2)
+        self.tab7_stack.addWidget(tab7_group3)
+        self.tab7_stack.addWidget(tab7_group4)
+        self.tab7_stack.addWidget(tab7_group5)
+        self.tab7_stack.addWidget(tab7_group6)
 
     def addPointsFiles(self):
         self.points_files_num += 1
-        self.points1[str(self.points_files_num)] = [QLabel("点位名:"),
-                                                    QLineEdit(),
-                                                    QLabel("点位文件名:"),
-                                                    QLineEdit()]
+        self.points1[str(self.points_files_num)] = [QLabel("点位名:"), QLineEdit(),
+                                                    QLabel("点位文件名:"), QLineEdit(),
+                                                    QLabel("结果文件名:"), QLineEdit()]
         for i, widget in enumerate(self.points1[str(self.points_files_num)]):
-            self.tab7_grid1.addWidget(widget, self.points_files_num - 1, i)
+            self.tab7_grid_p1.addWidget(widget, self.points_files_num - 1, i)
 
     def addPointsCoordinates(self):
         self.points_coords_num += 1
-        self.points2[str(self.points_coords_num)] = [QLabel("点位名:"),
-                                                     QLineEdit(),
-                                                     QLabel("X:"),
-                                                     QLineEdit(),
-                                                     QLabel("Y:"),
-                                                     QLineEdit()]
+        self.points2[str(self.points_coords_num)] = [QLabel("点位名:"), QLineEdit(),
+                                                     QLabel("X:"), QLineEdit(),
+                                                     QLabel("Y:"), QLineEdit(),
+                                                     QLabel("结果文件名:"), QLineEdit()]
         for i, widget in enumerate(self.points2[str(self.points_coords_num)]):
-            self.tab7_grid2.addWidget(widget, self.points_coords_num - 1, i)
+            self.tab7_grid_p2.addWidget(widget, self.points_coords_num - 1, i)
 
     def calculate_input_file(self):
         self.tab8_groupbox = QGroupBox()
 
-        tab8_combox = QComboBox()
-        tab8_combox.addItems(["dat文件", "geo文件"])
-        tab8_pushbutton1 = QPushButton("打开")
-        tab8_label1 = QLabel("最大散点距离:")
-        tab8_linedit1 = QLineEdit()
-        tab8_label2 = QLabel("m")
+        tab8_label1 = QLabel("geo文件名:")
+        self.tab8_linedit1 = QLineEdit()
 
-        tab8_label_x1 = QLabel("X1:")
-        tab8_linedit_x1 = QLineEdit()
-        tab8_label_y1 = QLabel("Y1:")
-        tab8_linedit_y1 = QLineEdit()
-        tab8_label_x2 = QLabel("X2:")
-        tab8_linedit_x2 = QLineEdit()
-        tab8_label_y2 = QLabel("Y2:")
-        tab8_linedit_y2 = QLineEdit()
-        tab8_label_dx = QLabel("DX:")
-        tab8_linedit_dx = QLineEdit()
-        tab8_label_dy = QLabel("DY:")
-        tab8_linedit_dy = QLineEdit()
+        tab8_label_x1 = QLabel("横坐标范围:")
+        self.tab8_linedit_x1 = QLineEdit()
+        tab8_label_x2 = QLabel("--")
+        self.tab8_linedit_x2 = QLineEdit()
+        tab8_label_dx = QLabel("网格尺度:")
+        self.tab8_linedit_dx = QLineEdit()
+        tab8_label_y1 = QLabel("纵坐标范围:")
+        self.tab8_linedit_y1 = QLineEdit()
+        tab8_label_y2 = QLabel("--")
+        self.tab8_linedit_y2 = QLineEdit()
+        tab8_label_dy = QLabel("网格尺度:")
+        self.tab8_linedit_dy = QLineEdit()
         tab8_grid1 = QGridLayout()
         tab8_grid1.addWidget(tab8_label_x1, 0, 0)
-        tab8_grid1.addWidget(tab8_linedit_x1, 0, 1)
-        tab8_grid1.addWidget(tab8_label_y1, 0, 2)
-        tab8_grid1.addWidget(tab8_linedit_y1, 0, 3)
-        tab8_grid1.addWidget(tab8_label_x2, 1, 0)
-        tab8_grid1.addWidget(tab8_linedit_x2, 1, 1)
+        tab8_grid1.addWidget(self.tab8_linedit_x1, 0, 1)
+        tab8_grid1.addWidget(tab8_label_x2, 0, 2)
+        tab8_grid1.addWidget(self.tab8_linedit_x2, 0, 3)
+        tab8_grid1.addWidget(tab8_label_dx, 0, 4)
+        tab8_grid1.addWidget(self.tab8_linedit_dx, 0, 5)
+        tab8_grid1.addWidget(tab8_label_y1, 1, 0)
+        tab8_grid1.addWidget(self.tab8_linedit_y1, 1, 1)
         tab8_grid1.addWidget(tab8_label_y2, 1, 2)
-        tab8_grid1.addWidget(tab8_linedit_y2, 1, 3)
-        tab8_grid1.addWidget(tab8_label_dx, 2, 0)
-        tab8_grid1.addWidget(tab8_linedit_dx, 2, 1)
-        tab8_grid1.addWidget(tab8_label_dy, 2, 2)
-        tab8_grid1.addWidget(tab8_linedit_dy, 2, 3)
+        tab8_grid1.addWidget(self.tab8_linedit_y2, 1, 3)
+        tab8_grid1.addWidget(tab8_label_dy, 1, 4)
+        tab8_grid1.addWidget(self.tab8_linedit_dy, 1, 5)
         tab8_groupbox1 = QGroupBox()
         tab8_groupbox1.setLayout(tab8_grid1)
 
-        tab8_label3 = QLabel("输出文件名:")
-        tab8_linedit2 = QLineEdit()
-        tab8_pushbutton2 = QPushButton("运行")
+        tab8_label2 = QLabel("输出文件名：")
+        self.tab8_linedit2 = QLineEdit()
+        self.conditions = [QLabel("人工岸线数目:"), QLineEdit(), QLabel("文件名:"), QLineEdit(),
+                           QLabel("人工港池数目:"), QLineEdit(), QLabel("文件名:"), QLineEdit(),
+                           QLabel("边界斜坡宽度:"), QLineEdit(), QLabel("坡度:"), QLineEdit(),
+                           QLabel("人工航道数目:"), QLineEdit(), QLabel("文件名:"), QLineEdit(),
+                           QLabel("航道边坡宽度:"), QLineEdit(), QLabel("坡度:"), QLineEdit()]
+
+        self.tab8_button1 = QPushButton("生成condition文件")
+        self.tab8_button1.clicked.connect(self.conditionFile)
+        self.tab8_button2 = QPushButton("运行caldep")
+        self.tab8_button2.clicked.connect(self.caldep)
 
         tab8_grid2 = QGridLayout()
-        tab8_grid2.addWidget(tab8_combox, 0, 0)
-        tab8_grid2.addWidget(tab8_pushbutton1, 0, 1)
-        tab8_grid2.addWidget(tab8_label1, 1, 0)
-        tab8_grid2.addWidget(tab8_linedit1, 1, 1)
-        tab8_grid2.addWidget(tab8_label2, 1, 2)
-        tab8_grid2.addWidget(tab8_groupbox1, 2, 0, 1, 2)
-        tab8_grid2.addWidget(tab8_label3, 3, 0)
-        tab8_grid2.addWidget(tab8_linedit2, 3, 1)
-        tab8_grid2.addWidget(tab8_pushbutton2, 4, 0)
+        tab8_grid2.addWidget(tab8_label1, 0, 0)
+        tab8_grid2.addWidget(self.tab8_linedit1, 0, 1)
+        tab8_grid2.addWidget(tab8_groupbox1, 1, 0, 2, 4)
+        tab8_grid2.addWidget(tab8_label2, 3, 0)
+        tab8_grid2.addWidget(self.tab8_linedit2, 3, 1)
+        for i, con_widget in enumerate(self.conditions):
+            tab8_line = i / 4 + 4
+            tab8_grid2.addWidget(con_widget, i / 4 + 4, i % 4)
+        tab8_grid2.addWidget(self.tab8_button1, tab8_line + 1, 0, 1, 2)
+        tab8_grid2.addWidget(self.tab8_button2, tab8_line + 1, 2, 1, 2)
         self.tab8_groupbox.setLayout(tab8_grid2)
 
     def writeFile(self):
-        input_lines = []
+        self.projectline()
+        self.setLine()
+        self.modeLine()
+        self.coordinatesLine()
+        self.cgridLine()
+        self.inpgridLine()
+        self.readinpLine()
+        self.windLine()
+        self.boundLine()
+        self.gen3Line()
+        self.functionsStrength()
+        self.propLine()
+        self.numericLine()
+        self.outputLines()
+        self.computeLine()
+        self.input_lines.append("STOP \n")
 
-        # ************************-----PROJECT-----****************************
+    # ************************-----PROJECT-----****************************
+    def projectLine(self):
         name = self.tab1_linedit1.text()
         nr = self.tab1_linedit2.text()
         project_line = " ".join(["PROJect", "\'" + name + "\'", "\'" + nr + "\'", "\n"])
         print(project_line)
-        input_lines.append(project_line)
+        self.input_lines.append(project_line)
 
-        # ************************-----SET-----****************************
+    # ************************-----SET-----****************************
+    def setLine(self):
         level = self.tab1_linedit3.text()
         nor = self.tab1_linedit4.text()
         depmin = '0.05'
@@ -890,10 +940,8 @@ class Swan(QDialog):
         else:
             cdcap = '99999'
         if self.tab1_combobox1.currentIndex():
-            # print(self.tab1_combobox1.currentText())
             inrhog = '1'
         else:
-            # print(self.tab1_combobox1.currentText())
             inrhog = '0'
         # hsrerr = '0.10'
         convention = 'CARTesian'
@@ -903,10 +951,11 @@ class Swan(QDialog):
         prtest = '4'
         set_line = " ".join(['SET', level, nor, depmin, maxmes, maxerr, grav, rho,
                              cdcap, inrhog, convention, pwtail, froudmax, printf, prtest, "\n"])
-        print(set_line)
-        input_lines.append(set_line)
+        # print(set_line)
+        self.input_lines.append(set_line)
 
-        # ************************-----MODE-----****************************
+    # ************************-----MODE-----****************************
+    def modeLine(self):
         if self.tab1_combobox2.currentIndex():
             mode = 'NONSTATionary'
         else:
@@ -914,9 +963,10 @@ class Swan(QDialog):
         dimension = 'TWODimensional'
         mode_line = " ".join(["MODE", mode, dimension, "\n"])
         print(mode_line)
-        input_lines.append(mode_line)
+        self.input_lines.append(mode_line)
 
-        # ************************-----COORDINATES-----****************************
+    # ************************-----COORDINATES-----****************************
+    def coordinatesLine(self):
         coordinate_index = self.tab1_combobox3.currentIndex()
         if coordinate_index is 0:
             coordinate = 'CARTesian'
@@ -926,38 +976,76 @@ class Swan(QDialog):
             coordinate = 'SPHErical QC'
         coordinate_line = " ".join(["COORDINATES", coordinate, "\n"])
         print(coordinate_line)
-        input_lines.append(coordinate_line)
+        self.input_lines.append(coordinate_line)
 
-        # ************************-----CGRID-----****************************
+    # ************************-----CGRID-----****************************
+    def cgridLine(self):
         if self.tab2_radiobutton2.isChecked():
             shape = 'UNSTRUCtured CIRcle'
-        else:
+        if self.tab2_radiobutton1.isChecked():
             shape = 'REGular'
+            xpc = self.tab2_linedit_x1.text()
+            ypc = self.tab2_linedit_y1.text()
+            alpc = '0.0'
+            cx2 = int(self.tab2_linedit_x2)
+            cy2 = int(self.tab2_linedit_y2)
+            cdx = int(self.tab2_linedit_dx)
+            cdy = int(self.tab2_linedit_dy)
+            xlenc = str(cx2 - int(xpc))
+            ylenc = str(cy2 - int(ypc))
+            mxc = str((cx2 - int(xpc)) / cdx)
+            myc = str((cy2 - int(ypc)) / cdy)
+            shape = " ".join(["REGular", xpc, ypc, alpc, xlenc, ylenc, mxc, myc, "CIRcle"])
         mdc = '36'
         flow = '0.04'
         fhigh = '2'
         cgrid_line = " ".join(["CGRID", shape, mdc, flow, fhigh, "\n"])
-        input_lines.append(cgrid_line)
+        self.input_lines.append(cgrid_line)
 
         # ************************-----READgrid-----****************************
         readgrid_line = " ".join(["READgrid", "UNSTRUCtured", "ADCirc", "\n"])
-        input_lines.append(readgrid_line)
+        self.input_lines.append(readgrid_line)
 
-        # ************************-----INPgrid-----****************************
-        inpgrid_line = " ".join(["INPgrid"])
-        input_lines.append(inpgrid_line)
+    # ************************-----INPgrid-----****************************
+    def inpgridLine(self):
+        tbeginp = self.tab3_datetime1.dateTime().toString("yyyyMMdd.hhmmss")
+        deltinp = self.tab3_linedit1.text()
+        tendinp = self.tab3_datetime2.dateTime().toString("yyyyMMdd.hhmmss")
+        time_unit0 = self.tab3_combobox.currentText()
+        self.factors = ["BOTtom", "WLEVel", "CURrent", "FRiction", "WInd", "NPLAnts"]
+        for i, box in enumerate(self.tab3_boxes):
+            if i % 4 == 0:
+                if box.isChecked():
+                    factor = self.factors[int(i / 4)]
+                    if self.tab3_boxes[i + 1].isChecked():
+                        inpgrid_line = " ".join(
+                            ["INPgrid", factor, "UNSTRUC NONSTAT", tbeginp, deltinp, time_unit0, tendinp, "\n"])
+                    else:
+                        inpgrid_line = " ".join(["INPgrid", factor, "UNSTRUC\n"])
+                    self.input_lines.append(inpgrid_line)
 
-        # ************************-----READinp-----****************************
-        readinp_line = " ".join(["READinp"])
-        input_lines.append(readinp_line)
+    # ************************-----READinp-----****************************
+    def readinpLine(self):
+        for j, box in enumerate(self.tab3_boxes):
+            if j % 4 == 0:
+                if box.isChecked():
+                    factor = self.factors[int(j / 4)]
+                    fname = "\'" + self.tab3_boxes[j + 3].text() + "\'"
+                    if self.tab3_boxes[j + 2].currentIndex():
+                        readinp_line = " ".join(["READinp", factor, "SERIes", fname, "\n"])
+                    else:
+                        readinp_line = " ".join(["READinp", factor, fname, "\n"])
+                    self.input_lines.append(readinp_line)
 
-        # ************************-----WIND-----****************************
+    # ************************-----WIND-----****************************
+    def windLine(self):
         vel = self.tab3_linedit2.text()
         dir_ = self.tab3_linedit3.text()
         wind_line = " ".join(["WIND", vel, dir_, "\n"])
-        input_lines.append(wind_line)
+        self.input_lines.append(wind_line)
 
-        # ************************-----BOUNd SHAPespec-----****************************
+    # ************************-----BOUNd SHAPespec-----****************************
+    def boundLine(self):
         if self.tab4_combox1.currentIndex() is 0:
             spectrum = 'BIN'
         elif self.tab4_combox1.currentText() is 1:
@@ -971,7 +1059,7 @@ class Swan(QDialog):
         else:
             wave_period = 'MEAN'
         bound_shapespec_line = " ".join(["BOUND SHAPespec", spectrum, wave_period, "DSPR POWER", "\n"])
-        input_lines.append(bound_shapespec_line)
+        self.input_lines.append(bound_shapespec_line)
 
         # ************************-----BOUNdspec-----****************************
         hs = self.tab4_linedit1.text()
@@ -987,7 +1075,7 @@ class Swan(QDialog):
         else:
             side = self.tab4_linedit0.text()
             boundspec_line = " ".join(["BOUNspec SIDE", side, "\n"])
-        input_lines.append(boundspec_line)
+        self.input_lines.append(boundspec_line)
 
         # ************************-----INITial-----****************************
         if self.tab6_combox1.currentIndex() is 0:
@@ -997,9 +1085,10 @@ class Swan(QDialog):
         else:
             initial = " ".join(["PAR", hs, per, dir, dd])
         initial_line = " ".join(["INITial", initial, "\n"])
-        input_lines.append(initial_line)
+        self.input_lines.append(initial_line)
 
-        # ************************-----GEN3-----****************************
+    # ************************-----GEN3-----****************************
+    def gen3Line(self):
         cds1 = '4.5'
         delta = '0.5'
         cds2 = '2.36e-5'
@@ -1012,41 +1101,48 @@ class Swan(QDialog):
         else:
             wind_input_mode = " ".join(["JANSsen", cds1, delta])
         gen3_line = " ".join(["GEN3", wind_input_mode, "AGROW", a, "\n"])
-        input_lines.append(gen3_line)
+        self.input_lines.append(gen3_line)
 
+    def functionsStrength(self):
         # ************************-----WCAP-----****************************
         wcap_line = " ".join(["WCAP", self.tab5_combox2.currentText(), "\n"])
-        input_lines.append(wcap_line)
+        self.input_lines.append(wcap_line)
 
         # ************************-----QUADrupl-----****************************
         if self.tab5_checkbox1.isChecked():
             quadrupl_line = 'QUADrupl \n'
         else:
             quadrupl_line = '!QUADrupl \n'
-        input_lines.append(quadrupl_line)
+        self.input_lines.append(quadrupl_line)
 
         # ************************-----BREaking-----****************************
         breaking_line = " ".join(["BREaking", self.tab5_combox3.currentText(), "\n"])
-        input_lines.append(breaking_line)
+        self.input_lines.append(breaking_line)
 
         # ************************-----FRICtion-----****************************
         if self.tab5_checkbox5.isChecked():
             if self.tab5_combox4.currentText() is "JONswap":
-                friction_line = " ".join(["FRICtion JONswap", "CONstant 0.067 \n"])
+                if self.tab3_radiobutton1.isChecked():
+                    cfjon = self.tab3_linedit4.text()
+                    friction_line = " ".join(["FRICtion JONswap", "CONstant", cfjon, "\n"])
+                elif self.tab3_radiobutton2.isChecked():
+                    friction_line = " ".join(["FRICtion JONswap VARiable\n"])
+                else:
+                    friction_line = ""
             elif self.tab5_combox4.currentText() is "COLLins":
                 friction_line = " ".join(["FRICtion COLLins 0.015 \n"])
             else:
                 friction_line = " ".join(["FRICtion MADsen 0.05 \n"])
         else:
             friction_line = " ".join(["!FRICtion \n"])
-        input_lines.append(friction_line)
+        self.input_lines.append(friction_line)
 
         # ************************-----TRIad-----****************************
         if self.tab5_checkbox3.isChecked():
             triad_line = 'TRIad \n'
         else:
             triad_line = '!TRIad \n'
-        input_lines.append(triad_line)
+        self.input_lines.append(triad_line)
 
         # ************************-----VEGEtation-----****************************
         height = self.tab5_linedit2.text()
@@ -1057,19 +1153,19 @@ class Swan(QDialog):
             vegetation_line = " ".join(["VEGEtation", height, diamtr, nstems, drag])
         else:
             vegetation_line = "!VEGEtation \n"
-        input_lines.append(vegetation_line)
+        self.input_lines.append(vegetation_line)
 
         # ************************-----LIMiter-----****************************
         if self.tab5_checkbox2.isChecked():
             limiter_line = 'LIMiter \n'
         else:
             limiter_line = '!LIMiter \n'
-        input_lines.append(limiter_line)
+        self.input_lines.append(limiter_line)
 
         # ************************-----OBSTacle-----****************************
         if self.obs_num == 0:
             obstacle_line = "!OBSTacle"
-            input_lines.append(obstacle_line)
+            self.input_lines.append(obstacle_line)
         else:
             for i in range(self.obs_num):
                 _key_name = str(i + 1) + "obs"
@@ -1085,53 +1181,135 @@ class Swan(QDialog):
                 else:
                     obstacle_line = " ".join(["OBSTacle TRANSm", trcoef, "LINE",
                                               obs_x1, obs_y1, obs_x2, obs_y2, "\n"])
-                input_lines.append(obstacle_line)
+                self.input_lines.append(obstacle_line)
 
         # ************************-----SETUP-----****************************
+        if self.tab5_checkbox6.isChecked():
+            setup_line = "SETUP"
+            self.input_lines.append(setup_line)
 
         # ************************-----DIFFRACtion-----****************************
         if self.tab5_checkbox4.isChecked():
             diffraction_line = " ".join(["DIFFRACtion 1 0 0 1\n"])
         else:
             diffraction_line = " ".join(["!DIFFRACtion\n"])
-        input_lines.append(diffraction_line)
+        self.input_lines.append(diffraction_line)
 
-        # ************************-----PROP-----****************************
+    # ************************-----PROP-----****************************
+    def propLine(self):
         if self.tab6_radiobutton1.isChecked():
             prop_line = "PROP BSBT\n"
         elif self.tab6_radiobutton2.isChecked():
             waveage = self.tab6_linedit1.text()
-            time_unit = self.tab6_combox2.currentText()
-            prop_line = " ".join(["PROP GSE", waveage, time_unit, "\n"])
+            time_unit1 = self.tab6_combox2.currentText()
+            prop_line = " ".join(["PROP GSE", waveage, time_unit1, "\n"])
         else:
             prop_line = "!PROP"
-        input_lines.append(prop_line)
+        self.input_lines.append(prop_line)
 
-        # ************************-----NUMeric-----****************************
+    # ************************-----NUMeric-----****************************
+    def numericLine(self):
         if self.tab6_combox3.currentIndex():
             numeric_line = "NUMeric STOPC\n"
         else:
             numeric_line = "NUMeric ACCUR\n"
-        input_lines.append(numeric_line)
+        self.input_lines.append(numeric_line)
+
+    # ************************-----FRAME-----****************************
+    def outputLines(self):
+        if self.tab7_checkbox3.isChecked():
+            xpfr = self.tab7_linedit_mx1.text()
+            ypfr = self.tab7_linedit_my1.text()
+            fx2 = int(self.tab7_linedit_mx2.text())
+            fy2 = int(self.tab7_linedit_my2.text())
+            fdx = int(self.tab7_linedit_mdx.text())
+            fdy = int(self.tab7_linedit_mdy.text())
+            alpfr = '0'
+            xlenfr = str(fx2 - int(xpfr))
+            ylenfr = str(fy2 - int(ypfr))
+            mxfr = str((fx2 - int(xpfr)) / fdx)
+            myfr = str((fy2 - int(ypfr)) / fdy)
+            f_sname = "\'" + self.tab7_linedit2.text() + "\'"
+            frame_line = " ".join(["FRAME", f_sname, xpfr, ypfr, alpfr, xlenfr, ylenfr, mxfr, myfr, "\n"])
+            self.input_lines.append(frame_line)
 
         # ************************-----POINTS-----****************************
         if self.tab7_checkbox1.isChecked():
             for i in range(self.points_files_num):
-                if self.points1[str(self.points_files_num)][3].text():
-                    sname = "\'" + self.points1[str(self.points_files_num)][1].text() + "\'"
-                    fname = "\'" + self.points1[str(self.points_files_num)][3].text() + "\'"
-                    points_line = " ".join(["POINTS", sname, "FILE", fname, "\n"])
-                    input_lines.append(points_line)
+                if self.points1[str(i + 1)][3].text():
+                    p1_sname = "\'" + self.points1[str(i + 1)][1].text() + "\'"
+                    p1_fname = "\'" + self.points1[str(i + 1)][3].text() + "\'"
+                    points_line = " ".join(["POINTS", p1_sname, "FILE", p1_fname, "\n"])
+                    self.input_lines.append(points_line)
         if self.tab7_checkbox2.isChecked():
             for i in range(self.points_coords_num):
-                points_x = self.points1[str(self.points_coords_num)][3].text()
-                points_y = self.points1[str(self.points_coords_num)][3].text()
+                points_x = self.points2[str(i + 1)][3].text()
+                points_y = self.points2[str(i + 1)][5].text()
                 if points_x and points_y:
-                    sname = "\'" + self.points1[str(self.points_coords_num)][1].text() + "\'"
-                    points_line = " ".join(["POINTS", sname, points_x, points_y, "\n"])
-                    input_lines.append(points_line)
+                    p2_sname = "\'" + self.points2[str(i + 1)][1].text() + "\'"
+                    points_line = " ".join(["POINTS", p2_sname, points_x, points_y, "\n"])
+                    self.input_lines.append(points_line)
 
-        # ************************-----COMPute-----****************************
+        # ************************-----NGRID-----****************************
+        if self.tab7_checkbox4.isChecked():
+            g_sname = "\'" + self.tab7_linedit4.text() + "\'"
+            xpn = self.tab7_linedit_bx1.text()
+            ypn = self.tab7_linedit_by1.text()
+            nx2 = int(self.tab7_linedit_bx2.text())
+            ny2 = int(self.tab7_linedit_by2.text())
+            ndx = int(self.tab7_linedit_bdx.text())
+            ndy = int(self.tab7_linedit_bdy.text())
+            alpn = '0'
+            xlenn = str(nx2 - int(xpn))
+            ylenn = str(ny2 - int(ypn))
+            mxn = str((nx2 - int(xpn)) / ndx)
+            myn = str((ny2 - int(ypn)) / ndy)
+            frame_line = " ".join(["FRAME", g_sname, xpn, ypn, alpn, xlenn, ylenn, mxn, myn, "\n"])
+            self.input_lines.append(frame_line)
+
+        tbegtbl = self.tab7_datetime1.dateTime().toString("yyyyMMdd.hhmmss")
+        delttbl = self.tab7_linedit_bt.text()
+        time_unit3 = self.tab7_combox_b1.currentText()
+
+        # ************************-----TABLE-----****************************
+        vars_1 = ""
+        for checkbox in self.output_frame_vars:
+            if checkbox.isChecked():
+                vars_1 = " ".join([vars_1, checkbox])
+        if self.tab7_checkbox3.isChecked():
+            f_fname = "\'" + self.tab7_linedit3.text() + "\'"
+            table_line1 = " ".join(
+                ["TABLE", f_sname, "INDEXED", f_fname, vars_1, "OUTPUT", tbegtbl, delttbl, time_unit3, "\n"])
+            self.input_lines.append(table_line1)
+
+        vars_2 = ""
+        for checkbox in self.output_points_vars:
+            if checkbox.isChecked():
+                vars_2 = " ".join([vars_2, checkbox])
+        if self.tab7_checkbox1.isChecked():
+            for i in range(self.points_files_num):
+                if self.points1[str(i + 1)][3].text():
+                    p1_ffname = "\'" + self.points1[str(i + 1)][5].text() + "\'"
+                    table_line2 = " ".join(["TABLE", p1_sname, "INDEXED", p1_ffname,
+                                            vars_2, "OUTPUT", tbegtbl, delttbl, time_unit3, "\n"])
+                    self.input_lines.append(table_line2)
+        if self.tab7_checkbox2.isChecked():
+            for i in range(self.points_coords_num):
+                p2_ffname = "\'" + self.points2[str(i + 1)][7].text() + "\'"
+                table_line2 = " ".join(["TABLE", p2_sname, "INDEXED", p2_ffname,
+                                        vars_2, "OUTPUT", tbegtbl, delttbl, time_unit3, "\n"])
+                self.input_lines.append(table_line2)
+
+        # ************************-----NESTout-----****************************
+        if self.tab7_checkbox4.isChecked():
+            g_fname = "\'" + self.tab7_linedit5.text() + "\'"
+            nestout_line = " ".join(["NESTout", g_sname, "INDEXED", g_fname,
+                                     "OUTPUT", tbegtbl, delttbl, time_unit3, "\n"])
+
+            self.input_lines.append(nestout_line)
+
+    # ************************-----COMPute-----****************************
+    def computeLine(self):
         if self.tab6_radiobutton3.isChecked():
             mode = 'STATionary'
             compute_line = " ".join(["COMPute", mode, "\n"])
@@ -1145,10 +1323,43 @@ class Swan(QDialog):
             compute_line = " ".join(["COMPute", mode, tbegc, deltc, time_unit2, tendc, "\n"])
         else:
             compute_line = "!COMPute"
-        input_lines.append(compute_line)
+        self.input_lines.append(compute_line)
 
         with open("input", 'w') as f_out:
-            f_out.writelines(input_lines)
+            f_out.writelines(self.input_lines)
+
+    def conditionFile(self):
+        condition_lines = []
+        line1 = " ".join(["读取的原始geo文件名：", self.tab8_linedit1.text(), "\n"])
+        line2 = " ".join(["横坐标范围：", self.tab8_linedit_x1.text(), self.tab8_linedit_x2.text(), "\n"])
+        line3 = " ".join(["横坐标网格尺度：", self.tab8_linedit_dx.text(), "\n"])
+        line4 = " ".join(["纵坐标范围：", self.tab8_linedit_y1.text(), self.tab8_linedit_y2.text(), "\n"])
+        line5 = " ".join(["纵坐标网格尺度：", self.tab8_linedit_dy.text(), "\n"])
+        line6 = " ".join(["生成的文件名：", self.tab8_linedit2.text(), "\n"])
+        line7 = " ".join(["封闭岸线数目：", self.conditions[1].text(), "\n"])
+        line8 = " ".join(["岸线文件名：", self.conditions[3].text(), "\n"])
+        line9 = " ".join(["封闭港池数目：", self.conditions[5].text(), "\n"])
+        line10 = " ".join(["港池文件名：", self.conditions[7].text(), "\n"])
+        line11 = " ".join(["港池边界人工变宽宽度及坡比：", self.conditions[9].text(), self.conditions[11].text(), "\n"])
+        line12 = " ".join(["封闭港池数目：", self.conditions[13].text(), "\n"])
+        line13 = " ".join(["港池文件名：", self.conditions[15].text(), "\n"])
+        line14 = " ".join(["港池边界人工变宽宽度及坡比：", self.conditions[17].text(), self.conditions[19].text(), "\n"])
+        all_lines = [line1, line2, line3, line4, line5, line6, line7,
+                     line8, line9, line10, line11, line12, line13, line14]
+        for line in all_lines:
+            condition_lines.append(line)
+
+        filename = "condition.dat"
+        with open(filename, 'w') as ff_out:
+            ff_out.writelines(condition_lines)
+
+    def caldep(self):
+        from subprocess import call
+
+        cur_dir = os.getcwd()
+        # _dir = os.path.join(cur_dir, 'CAL_DEP')
+        cmdline = "caldep.exe"
+        call("start cmd /K " + cmdline, cwd=cur_dir, shell=True)
 
 
 if __name__ == '__main__':
