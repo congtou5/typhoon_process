@@ -76,11 +76,12 @@ def many_routes(series_nums):
 
 
 if __name__ == '__main__':
-
-    # 获取单个台风路径数据
-    # typhoon_num = input("输入台风代号（如:201605）：")
-    # one_route(code_num=typhoon_num)
-
-    # 获取系列台风数据
-    typhoon_series_num = input("输入系列台风代号（格式为:2016,05-12）：")
-    many_routes(series_nums=typhoon_series_num)
+    one_or_many = int(input("请输入0或1（输入0获取单个台风数据，输入1获取系列台风数据）->"))
+    if one_or_many:
+        # 获取系列台风数据
+        typhoon_series_num = input("请输入系列台风代号（格式为:2016,05-12,请用英文符号）：")
+        many_routes(series_nums=typhoon_series_num)
+    else:
+        # 获取单个台风路径数据
+        typhoon_num = input("输入台风代号（如:201605）：")
+        one_route(code_num=typhoon_num)
